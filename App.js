@@ -7,6 +7,8 @@ import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import SigninScreen from './screens/SigninScreen';
 import { useFonts } from 'expo-font';
 import { AppLoading } from "expo-app-loading";
+import HomeScreen from './screens/HomeScreen';
+import Screen2 from './screens/SettingScreen';
 
 export default function App() {
   
@@ -34,6 +36,6 @@ export default function App() {
     // <NavigationContainer theme={customTheme}>
     //   <Navigation />
     // </NavigationContainer>
-    <ForgotPasswordScreen/>
+    <Screen2/>
   );
 }
