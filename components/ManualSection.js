@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.madaBold,
     color: Color.lightsteelblue,
     width: 63,
-    height: 14,
+    
   },
   rectangleParent: {
     top: 436,

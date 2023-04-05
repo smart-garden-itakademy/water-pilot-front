@@ -1,12 +1,19 @@
 import * as React from "react";
-import { Image, StyleSheet, View, Pressable, Text } from "react-native";
+import { Image, StyleSheet, View, Pressable, Text, Switch } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import ManualSection from "../components/ManualSection";
 import SectionManual from "../components/SectionManual";
 import { Border, Color, FontSize, FontFamily } from "../GlobalStyles";
+import AutoManualSwitch from "../components/AutoManualSwitch";
 
 const Screen2 = () => {
-// const navigation = useNavigation();
+  // const navigation = useNavigation();
+  const [isEnabled, setIsEnabled] = React.useState(false);
+
+  const toggleSwitch = () => {
+    setIsEnabled((previousState) => !previousState);
+  };
+
   return (
     <View style={styles.screen2}>
       <View style={[styles.plante1Parent, styles.plante1Layout]}>
@@ -36,6 +43,7 @@ const Screen2 = () => {
         <View style={[styles.rectangleView, styles.groupInnerShadowBox]} />
         <Text style={[styles.man, styles.manTypo]}>manual</Text>
         <Text style={[styles.auto, styles.manTypo]}>auto</Text>
+        
       </View>
       <View style={[styles.screen2Child, styles.groupChildShadowBox]} />
       <Pressable
@@ -64,7 +72,6 @@ const Screen2 = () => {
           source={require("../assets/back.png")}
         />
       </Pressable>
-      
     </View>
   );
 };
@@ -121,8 +128,15 @@ const styles = StyleSheet.create({
     textAlign: "left",
     fontSize: FontSize.size_lg,
     top: 576,
+    width: 200,
     position: "absolute",
   },
+  switch: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+  },
+  
   sortieTypo: {
     alignItems: "center",
     display: "flex",
@@ -186,16 +200,13 @@ const styles = StyleSheet.create({
     left: 244,
     fontFamily: FontFamily.actorRegular,
     color: Color.white,
-    width: 70,
-    height: 24,
   },
   auto: {
     left: 325,
     fontWeight: "700",
+    width: 200,
     fontFamily: FontFamily.madaBold,
     color: Color.lightsteelblue,
-    width: 63,
-    height: 14,
   },
   plante1Parent: {
     top: 29,
@@ -205,9 +216,7 @@ const styles = StyleSheet.create({
     top: 595,
     left: 82,
   },
-  icon1: {
-    overflow: "hidden",
-  },
+ 
   schedule: {
     left: 90,
     top: 605,
@@ -258,31 +267,10 @@ const styles = StyleSheet.create({
     height: 96,
     position: "absolute",
   },
-  addBtnIcon: {
-    width: "97.07%",
-    top: 681,
-    right: "0%",
-    left: "2.93%",
-    height: 131,
-    maxWidth: "100%",
-    position: "absolute",
-    overflow: "hidden",
-  },
   screen2: {
-    borderRadius: Border.br_26xl,
     backgroundColor: Color.aliceblue_100,
-    shadowColor: "rgba(0, 0, 0, 0.18)",
-    shadowRadius: 80,
-    elevation: 80,
     flex: 1,
-    height: 812,
-    overflow: "hidden",
-    width: "100%",
-    shadowOpacity: 1,
-    shadowOffset: {
-      width: 50,
-      height: 80,
-    },
+    
   },
 });
 
