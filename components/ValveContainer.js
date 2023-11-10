@@ -8,7 +8,8 @@ import {
   TextInput,
   useWindowDimensions, 
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard, 
+  Alert
 } from "react-native";
 import { Color, FontFamily, FontSize } from "../GlobalStyles";
 
@@ -29,39 +30,47 @@ const ValveContainer = (props) => {
     height: height * 0.12,
   };
 
-   // width:  width * 0.8,
-    // height: height * 0.7,
+ 
   const {
-    name,
+    nameValve,
     onPressWatering,
     onPressSchedule,
     isAutomatic,
+    isOn, 
     onDelete,
-    updateValve,
+    updateValveName,
+    updateValveIsAutomaticOrIsOn,
     valveId,
   } = props;
-  const [mode, setMode] = useState(isAutomatic ? "auto" : "manual");
 
-  const handlePressAuto = () => setMode("auto");
-  const handlePressManual = () => setMode("manual");
+
+
+  const handlePressAuto  = async () => {
+    if(isOn === 1 ){
+      Alert.alert("un arrosage est en cours");  
+      return    
+    }
+    await updateValveIsAutomaticOrIsOn(valveId, "isAutomatic",  'true')
+  }
+  const handlePressManual =async () => await updateValveIsAutomaticOrIsOn(valveId, "isAutomatic",  'false')
 
   // État pour savoir si le nom est en cours de modification
   const [isEditingName, setIsEditingName] = useState(false);
 
   // État pour stocker la valeur temporaire du nom pendant la modification
-  const [tempName, setTempName] = useState(name);
+  const [tempName, setTempName] = useState(nameValve);
 
   const validateImage = require("../assets/validate.png");
 const crayonImage = require("../assets/crayon.png");
 const inputRef = useRef(null);
 
-  // initialisation du mode auto ou manuel en fonction de la valeur de isAutomatic
-  useEffect(() => {
-    setMode(isAutomatic ? "auto" : "manual");
-  }, [isAutomatic]);
 
-  function onPressSplash() {
-    console.log("arrosage manuel en cours");
+async function  onPressSplash () {
+   await updateValveIsAutomaticOrIsOn(valveId, "isOn",  isOn === 1 ? "false" : "true")
+   if(isOn === 0 ){
+    Alert.alert("L'arrosage est activé");  
+    // console.log("arrosage manuel en cours");
+  }
   }
 
   // Fonction pour gérer le début de la modification du nom
@@ -74,17 +83,18 @@ const inputRef = useRef(null);
     }, 0);
   };
   // Fonction pour gérer la validation de la modification du nom
-  const handleValidateName = () => {
+  const handleValidateName = async () => {
     setIsEditingName(false);
     //  mettre à jour la nom dans votre base de données
-    if (tempName !== name) updateValve(valveId, tempName);
+    if (tempName !== nameValve) await updateValveName(valveId, "name",  tempName);
   };
 
     // Fonction pour fermer l'édition lorsque l'on clique en dehors
-    const closeEdit = () => {
+    const closeEdit = async () => {
       setIsEditingName(false);
-      if (tempName !== name) updateValve(valveId, tempName);
+      if (tempName !== nameValve) await updateValveName(valveId, "name", tempName);
     };
+
 
   return (
     <View style={[styles.container]}>
@@ -102,7 +112,7 @@ const inputRef = useRef(null);
             onBlur={closeEdit}
           />
         ) : (
-          <Text style={styles.valveName}>{name}</Text>
+          <Text style={styles.valveName}>{nameValve}</Text>
         )}
         <Pressable
           style={styles.updateButton}
@@ -139,43 +149,26 @@ const inputRef = useRef(null);
 
         <Pressable
           style={[
+           isOn === 1 ? styles.ButtonIsOn : null, 
             buttonStyle,
             isAutomatic === 1 ? styles.disabledButton : null,
           ]}
-          onPress={onPressSplash}
+          onPress={() => onPressSplash()}
           disabled={isAutomatic === 1}
         >
-          <Image
-            style={iconStyle}
-            source={require("../assets/icon-splash.png")}
-          />
+          <Text style = {{fontSize : 13, fontFamily : isAutomatic === 1 ? FontFamily.poppinsBold: FontFamily.poppinsBold, color: isOn === 1 ? "white" : null }}> {isOn === 1 ? "ON" : "OFF"}</Text>
         </Pressable>
 
         <View style={styles.switchMode}>
-          <Pressable
+        <Pressable
             style={
-              mode === "auto" ? styles.buttonActive : styles.buttonInactive
+              isAutomatic !== 1 ? styles.buttonActive : styles.buttonInactive
             }
-            onPress={() => handlePressAuto}
+            onPress={() => handlePressManual()}
           >
             <Text
               style={
-                mode === "auto" ? styles.buttonText : styles.buttonTextInactive
-              }
-            >
-              Auto
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={
-              mode === "manual" ? styles.buttonActive : styles.buttonInactive
-            }
-            onPress={() => handlePressManual}
-          >
-            <Text
-              style={
-                mode === "manual"
+                isAutomatic !== 1
                   ? styles.buttonText
                   : styles.buttonTextInactive
               }
@@ -183,6 +176,23 @@ const inputRef = useRef(null);
               Manuel
             </Text>
           </Pressable>
+          <Pressable
+            style={
+              isAutomatic === 1 ? styles.buttonActive : styles.buttonInactive
+            }
+            onPress={() => handlePressAuto()}
+            
+          >
+            <Text
+              style={
+                isAutomatic === 1 ? styles.buttonText : styles.buttonTextInactive
+              }
+            >
+              Auto
+            </Text>
+          </Pressable>
+
+         
         </View>
        
       </View>
@@ -218,7 +228,6 @@ const styles = StyleSheet.create({
     borderColor: Color.lightslategray,
     padding: 6,
     marginHorizontal: 5,
-    backgroundColor: "v",
     alignItems: "center",
     justifyContent: "center",    
     maxWidth: 53,
@@ -227,7 +236,7 @@ const styles = StyleSheet.create({
     minHeight: 40,
   },
   icon: {
-    maxWidth: 36,
+    maxWidth: 34,
     minWidth: 20,
     maxHeight: 33,
     minHeight: 20,
@@ -252,7 +261,6 @@ const styles = StyleSheet.create({
   },
   buttonActive: {
     backgroundColor: '#6fa5d9ff',
-    // backgroundColor: Color.steelblue_200,
     borderRadius: 25,
     paddingHorizontal: 8,
     paddingVertical: 5,
@@ -260,7 +268,7 @@ const styles = StyleSheet.create({
   },
   buttonInactive: {
     marginHorizontal: 5,
-    color: "Color.steelblue_200",
+    // color: Color.steelblue_200,
   },
   buttonText: {
     color: Color.white,
@@ -268,13 +276,13 @@ const styles = StyleSheet.create({
     fontSize: FontSize.size_base,
   },
   buttonTextInactive: {
-    color: Color.steelblue_200,
+    color: Color.darkGrey,
     fontFamily: FontFamily.poppinsMedium,
     fontSize: FontSize.size_base,
   },
   disabledButton: {
     backgroundColor: Color.darkGrey,
-    opacity:0.7,
+    opacity:0.4,
   },
   deleteButton: {
     borderWidth: 1,
@@ -300,6 +308,19 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     marginRight:15, 
   },
+
+  ButtonIsOn : {
+    backgroundColor :  "#6fa5d9ff" , 
+    opacity: 0.6 ,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+
   deleteButtonText: {
     color: Color.white,
     fontSize: 20,
@@ -328,7 +349,6 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   updateButtonText: {
-    // fontFamily: FontFamily.poppinsMedium,
     width: 15,
     height: 15,
   },
